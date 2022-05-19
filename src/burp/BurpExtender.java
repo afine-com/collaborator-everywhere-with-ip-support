@@ -4,9 +4,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class BurpExtender implements IBurpExtender {
-    private static final String name = "Collaborator Everywhere";
+    private static final String name = "Collaborator Everywhere (with IP support)";
     private static final String version = "1.3";
 
     // provides potentially useful info but increases memory usage
@@ -160,13 +161,13 @@ class MetaRequest {
 
 class Correlator {
 
-    private IBurpCollaboratorClientContext collab;
     private HashMap<String, Integer> idToRequestID;
     private HashMap<String, String> idToType;
     private HashMap<Integer, MetaRequest> requests;
     private HashMap<Integer, Integer> burpIdToRequestID;
     private HashSet<String> client_ips;
     private int count = 0;
+    protected IBurpCollaboratorClientContext collab;
 
     Correlator() {
         idToRequestID = new HashMap<>();
@@ -175,11 +176,23 @@ class Correlator {
         burpIdToRequestID = new HashMap<>();
         collab = Utilities.callbacks.createBurpCollaboratorClientContext();
         client_ips = new HashSet<>();
-
         try {
-            String pollPayload = collab.generatePayload(true);
-            Utilities.callbacks.makeHttpRequest(pollPayload, 80, false, ("GET / HTTP/1.1\r\nHost: " + pollPayload + "\r\n\r\n").getBytes());
-            for (IBurpCollaboratorInteraction interaction: collab.fetchCollaboratorInteractionsFor(pollPayload)) {
+            String hostOrIp = collab.generatePayload(true);
+            String getPath = "/";
+            String payload = hostOrIp;
+            String[] splittedPollPayload = hostOrIp.split("/");
+            if(splittedPollPayload.length == 2 &&
+                    (Utilities.isIPv4Address(splittedPollPayload[0]) || Utilities.isIPv6Address(splittedPollPayload[0]))) {
+                Utilities.out("Collaborator IP address mode (payloads will be made using the IP address instead of domain)");
+                hostOrIp = splittedPollPayload[0];
+                getPath += splittedPollPayload[1];
+                payload = hostOrIp + getPath;
+            } else {
+                Utilities.out("Collaborator domain name mode (default, payloads will be made using domain name)");
+            }
+            Utilities.out("Restart the plugin if you change Collaborator Server Mode.");
+            Utilities.callbacks.makeHttpRequest(hostOrIp, 80, false, ("GET " + getPath +" HTTP/1.1\r\nHost: " + hostOrIp + "\r\n\r\n").getBytes());
+            for (IBurpCollaboratorInteraction interaction: collab.fetchCollaboratorInteractionsFor(payload)) {
                 client_ips.add(interaction.getProperty("client_ip"));
             }
             Utilities.out("Calculated your IPs: "+ client_ips.toString());
@@ -188,7 +201,7 @@ class Correlator {
             Utilities.out("Unable to calculate client IP - collaborator may not be functional");
         }
         catch (java.lang.IllegalArgumentException e) {
-            Utilities.out("The Collaborator appears to be misconfigured. Please run a health check via Project Options->Misc. Also, note that Collaborator Everywhere does not support the IP-address mode.");
+            Utilities.out("The Collaborator appears to be misconfigured. Please run a health check via Project Options->Misc.");
         }
 
     }
@@ -208,7 +221,7 @@ class Correlator {
         String id = collab.generatePayload(false);
         idToRequestID.put(id, requestCode);
         idToType.put(id, type);
-        return id+"."+collab.getCollaboratorServerLocation();
+        return collab.getCollaboratorServerLocation()+"/"+id;
     }
 
     String getLocation() {
@@ -243,8 +256,12 @@ class Injector implements IProxyListener {
 
     Injector(Correlator collab) {
         this.collab = collab;
-
-        Scanner s = new Scanner(getClass().getResourceAsStream("/injections"));
+        Scanner s;
+        if(Utilities.isIPv4Address(collab.collab.getCollaboratorServerLocation()) || Utilities.isIPv6Address(collab.collab.getCollaboratorServerLocation())) {
+            s = new Scanner(getClass().getResourceAsStream("/injections-ip-address-mode"));
+        } else {
+            s = new Scanner(getClass().getResourceAsStream("/injections"));
+        }
         while (s.hasNextLine()) {
             String injection = s.nextLine();
             if (injection.charAt(0) == '#') {
@@ -253,7 +270,6 @@ class Injector implements IProxyListener {
             injectionPoints.add(injection.split(",", 3));
         }
         s.close();
-
     }
 
     public byte[] injectPayloads(byte[] request, Integer requestCode) {

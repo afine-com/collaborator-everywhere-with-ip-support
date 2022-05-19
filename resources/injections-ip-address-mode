@@ -1,0 +1,45 @@
+# Lines starting with # are ignored
+#param,u,http://%s/
+#param,href,http://%s/
+#param,action,http://%s/
+#param,host,%s
+#param,http_host,%s
+#param,email,root@%s
+#param,url,http://%s/
+#param,load,http://%s/
+#param,preview,http://%s/
+#param,target,http://%s/
+#param,proxy,http://%s/
+#param,from,http://%s/
+#param,src,http://%s/
+#param,ref,http://%s/
+#param,referrer,http://%s/
+# %h is replaced with corresponding Host header
+# Useful in cases like Host, Origin, etc.
+#header,Host,%s:80@%h
+#header,Origin,http://%s
+#header,X-Forwarded-Host,http://%s
+#header,X-Host,http://%s
+#header,Via,1.1 http://%s
+header,X-Forwarded-Server,http://%s
+header,Proxy-Host,http://%s
+header,Destination,http://%s
+header,Proxy,http://%s
+header,X-Original-URL,http://%s
+header,Profile,http://%s/wap.xml
+header,X-Arbitrary,http://%s
+header,X-HTTP-DestinationURL,http://%s
+header,X-Forwarded-Proto,http://%s
+header,Contact,root@%s
+header,From,root@%s
+header,User-Agent,Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36 root@%s
+header,Referer,http://%s/ref
+header,X-Wap-Profile,http://%s/wap.xml
+header,X-Forwarded-For,http://%s
+header,True-Client-IP,http://%s
+header,Client-IP,http://%s
+header,X-Client-IP,http://%s
+header,X-Real-IP,http://%s
+header,X-Originating-IP,http://%s
+header,CF-Connecting_IP,http://%s
+header,Forwarded,for=http://%s;by=http://%s;host=http://%s

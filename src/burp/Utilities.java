@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 
 public class Utilities {
@@ -141,6 +142,20 @@ public class Utilities {
         } catch (IOException e) {
             throw new RuntimeException("Request creation unexpectedly failed");
         }
+    }
+
+    private static final Pattern PATTERN_IPV4 = Pattern.compile(
+            "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+
+    private static final Pattern PATTERN_IPV6 = Pattern.compile(
+            "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:)?((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9]))");
+
+    public static boolean isIPv4Address(final String ip) {
+        return PATTERN_IPV4.matcher(ip).matches();
+    }
+
+    public static boolean isIPv6Address(final String ip) {
+        return PATTERN_IPV6.matcher(ip).matches();
     }
 
 }
