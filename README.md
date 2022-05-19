@@ -1,6 +1,6 @@
 # Collaborator Everywhere (with IP support)
 
-**This is a fork of @albinowax's Collaborator Everywhere plugin which works with IP addresses (instead of domain names). It can be useful when testing the application inside internal networks that have no access to and cannot be accessed from the internet.**
+**This is a fork of [@albinowax's](https://github.com/albinowax) Collaborator Everywhere plugin which works with IP addresses (instead of domain names). It can be useful when testing the application inside internal networks that have no access to and cannot be accessed from the internet.**
 
 For information about Collaborator Everywhere, please refer to the [original repository](https://github.com/PortSwigger/collaborator-everywhere/).
 
@@ -58,5 +58,7 @@ Loaded Collaborator Everywhere (with IP support) v1.3
 
 Observe in *Logger* that headers are added to the requests in *Scope*.
 
+**IMPORTANT: If you change Burp Collaborator Server settings, restart the extension!** 
+
 ### Fork credits
-@linoskoczek  & @mackeysec (AFINE Team)
+[@linoskoczek](https://github.com/linoskoczek) & [@mackeysec](https://github.com/mackeysec) (AFINE Team)
